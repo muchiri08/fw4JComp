@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "app_user")
@@ -12,8 +13,18 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    @NotBlank(message = "name is required")
     private String name;
+    @NotBlank(message = "occupation is required")
     private String occupation;
+
+    public User() {
+    }
+
+    public User(String name, String occupation) {
+        this.name = name;
+        this.occupation = occupation;
+    }
 
     public int getId() {
         return id;

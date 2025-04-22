@@ -13,18 +13,27 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.muchirikennedy.app.user.control.UserControl;
 import com.muchirikennedy.app.user.control.UserManager;
 import com.muchirikennedy.app.user.entity.User;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserResource {
 
     @Autowired
     UserManager userManager;
+    @Autowired
+    UserControl userControl;
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> saveUser(@RequestBody User user, UriComponentsBuilder urilBuilder) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity saveUser(@RequestBody JsonNode userJson, UriComponentsBuilder urilBuilder) {
+        var user = userControl.mapToUser(userJson);
+        var errors = userControl.validateUser(user);
+        if(!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
         userManager.saveUser(user);
         var location = urilBuilder.path("/users/{id}")
                 .buildAndExpand(user.getId())
