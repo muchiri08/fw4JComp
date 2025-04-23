@@ -4,11 +4,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "systemUser")
+@NamedQuery(name = "deleteUser", query = "DELETE FROM User u WHERE u.id = :id")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

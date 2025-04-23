@@ -22,4 +22,12 @@ public class UserManager {
     public Optional<User> findUser(int userId) {
         return Optional.ofNullable(em.find(User.class, userId));
     }
+
+    @Transactional
+    public boolean deleteUser(int userId) {
+        var rows = em.createNamedQuery("deleteUser")
+                .setParameter("id", userId)
+                .executeUpdate();
+        return rows == 1;
+    }
 }

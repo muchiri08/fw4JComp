@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +32,7 @@ public class UserResource {
     public ResponseEntity saveUser(@RequestBody JsonNode userJson, UriComponentsBuilder urilBuilder) {
         var user = userControl.mapToUser(userJson);
         var errors = userControl.validateUser(user);
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             return ResponseEntity.badRequest().body(errors);
         }
         userManager.saveUser(user);
@@ -48,5 +49,15 @@ public class UserResource {
                         () -> new ResponseStatusException(HttpStatusCode.valueOf(404)));
 
         return ResponseEntity.ok(user);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity deleteUser(@PathVariable("id") int id) {
+        var success = userManager.deleteUser(id);
+        if (success) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

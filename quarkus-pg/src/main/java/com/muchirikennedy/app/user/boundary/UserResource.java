@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -53,5 +54,16 @@ public class UserResource {
                         () -> new WebApplicationException(404));
 
         return Response.ok(user).build();
+    }
+
+    @DELETE
+    @Path("{id}")
+    public Response deleteUser(@PathParam("id") int id) {
+        var success = userManager.deleteUser(id);
+        if (success) {
+            return Response.noContent().build();
+        } else {
+            return Response.status(Status.NOT_FOUND).build();
+        }
     }
 }
