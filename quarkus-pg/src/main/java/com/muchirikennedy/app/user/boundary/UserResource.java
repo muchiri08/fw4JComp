@@ -1,7 +1,16 @@
 package com.muchirikennedy.app.user.boundary;
 
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.media.SchemaProperty;
+
 import com.muchirikennedy.app.user.control.UserControl;
 import com.muchirikennedy.app.user.control.UserManager;
+import com.muchirikennedy.app.user.entity.User;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.JsonObject;
@@ -28,6 +37,14 @@ public class UserResource {
     @Inject
     UserControl userControl;
 
+    @Operation(summary = "Create new user", description = "create a new user with the given data")
+    @APIResponse(responseCode = "201", description = "Success")
+    @APIResponse(responseCode = "400", description = "Invalid user inputs", content = @Content(mediaType = "application/json"))
+    @RequestBody(content = {
+            @Content(mediaType = "application/json", schema = @Schema(properties = {
+                    @SchemaProperty(name = "name", nullable = false, defaultValue = "John Doe"),
+                    @SchemaProperty(name = "occupation", nullable = false, defaultValue = "Software Developer") }))
+    })
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -45,6 +62,12 @@ public class UserResource {
         return Response.created(location).build();
     }
 
+    @APIResponse(
+        responseCode = "200", 
+        description = "Success", 
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
+    )
+    @APIResponse(responseCode = "404", description = "User Not Found")
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -56,6 +79,8 @@ public class UserResource {
         return Response.ok(user).build();
     }
 
+    @APIResponse(responseCode = "204", description = "Success")
+    @APIResponse(responseCode = "404", description = "User Not Found")
     @DELETE
     @Path("{id}")
     public Response deleteUser(@PathParam("id") int id) {

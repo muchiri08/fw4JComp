@@ -19,6 +19,11 @@ import com.muchirikennedy.app.user.control.UserControl;
 import com.muchirikennedy.app.user.control.UserManager;
 import com.muchirikennedy.app.user.entity.User;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController
 @RequestMapping("/users")
 public class UserResource {
@@ -28,6 +33,10 @@ public class UserResource {
     @Autowired
     UserControl userControl;
 
+    @Operation(summary = "Create new user", description = "create a new user with the given data")
+    @ApiResponse(responseCode = "201", description = "Success", content = @Content(mediaType = ""))
+    @ApiResponse(responseCode = "400", description = "Invalid user inputs", content = @Content(mediaType = "application/json", examples = {}))
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/json", schema = @Schema(type = "object", example = "{\"name\":\"John Doe\",\"occupation\":\"Software Developer\"}")))
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity saveUser(@RequestBody JsonNode userJson, UriComponentsBuilder urilBuilder) {
         var user = userControl.mapToUser(userJson);
@@ -42,6 +51,12 @@ public class UserResource {
         return ResponseEntity.created(location).build();
     }
 
+    @ApiResponse(
+        responseCode = "200", 
+        description = "Success", 
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = User.class))
+    )
+    @ApiResponse(responseCode = "404", description = "User Not Found", content = @Content(examples = {}))
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> findUser(@PathVariable("id") int id) {
         var user = userManager.findUser(id)
@@ -51,6 +66,8 @@ public class UserResource {
         return ResponseEntity.ok(user);
     }
 
+    @ApiResponse(responseCode = "204", description = "Success", content = @Content(examples = {}))
+    @ApiResponse(responseCode = "404", description = "User Not Found", content = @Content(examples = {}))
     @DeleteMapping("{id}")
     public ResponseEntity deleteUser(@PathVariable("id") int id) {
         var success = userManager.deleteUser(id);
